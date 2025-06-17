@@ -69,7 +69,7 @@ try {
     & $fullIntuneWinExePath -c $sourcePath -s $oktaVerifyInstaller -o $outputPath
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ Package created successfully!" -ForegroundColor Green
-        Write-Host "Output location: $outputPath" -ForegroundColor Cyan
+        Write-Host "Output location: $outputPath" -ForegroundColor Magenta
     } else {
         Write-Host "✗ IntuneWinAppUtil failed with exit code: $LASTEXITCODE" -ForegroundColor Red
     }
@@ -86,5 +86,5 @@ try {
     # Clean up downloaded installer (comment this out if you need to debug)
     Remove-Item "$sourcePath$oktaVerifyInstaller" -ErrorAction SilentlyContinue
     
-    Write-Host "✓ Cleanup complete" -ForegroundColor Green
+    Write-Host "✓ Cleanup complete" -ForegroundColor Cyan
 }
