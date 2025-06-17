@@ -36,9 +36,6 @@ Required for downloading:
    - Find this in: **Okta Admin Console > Settings > Downloads > Okta Verify for Windows (.exe)**
 4. The script will automatically download, package, create the .intunewin file, and clean up temporary files
 
-### Subsequent Runs
-You'll need to enter your Okta Verify URL each time, as the configuration file is cleaned up after each successful run for security.
-
 ## Output
 
 The script creates the following directory structure:
