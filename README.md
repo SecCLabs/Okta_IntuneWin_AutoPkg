@@ -51,7 +51,7 @@ C:\IntuneTools\IntuneWinAppUtil\
 └── IntuneWinAppUtil.exe # Extracted packaging tool
 ```
 
-**Note:** After successful packaging, the script automatically removes:
+**Note:** The script automatically cleans up after completion (regardless of success or failure):
 - The downloaded Okta Verify installer from the Source folder
 - Okta URL variable from memory
 
@@ -90,5 +90,5 @@ After the script completes successfully:
 ## Security Notes
 - The script uses Process-scoped execution policy for security
 - Downloads are performed over HTTPS
-- Temporary files (installer) are automatically cleaned up after successful packaging
-- Sensitive URL variables are cleared from memory after use
+- Temporary files are automatically cleaned up after completion (script success or failure)
+- Sensitive URL variables are cleared from memory after use (script success or failure)

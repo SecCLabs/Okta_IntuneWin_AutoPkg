@@ -70,19 +70,21 @@ try {
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ Package created successfully!" -ForegroundColor Green
         Write-Host "Output location: $outputPath" -ForegroundColor Cyan
-        
-        # Clean up temporary files
-        Write-Host "Cleaning up temporary files..." -ForegroundColor Cyan
-        Remove-Item "$sourcePath$oktaVerifyInstaller" -ErrorAction SilentlyContinue
-        
-        # Clear sensitive variables from memory
-        $oktaVerifyUrl = $null
-        Write-Host "✓ Cleanup complete" -ForegroundColor Green
     } else {
         Write-Host "✗ IntuneWinAppUtil failed with exit code: $LASTEXITCODE" -ForegroundColor Red
     }
 } catch {
     Write-Host "✗ Error running IntuneWinAppUtil: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host "Please ensure the Okta Verify installer was downloaded correctly" -ForegroundColor Yellow
-    exit 1
+} finally {
+    # Always clean up sensitive data and temporary files
+    Write-Host "Cleaning up..." -ForegroundColor Cyan
+    
+    # Always clear sensitive variables from memory
+    $oktaVerifyUrl = $null
+    
+    # Clean up downloaded installer (comment this out if you need to debug)
+    Remove-Item "$sourcePath$oktaVerifyInstaller" -ErrorAction SilentlyContinue
+    
+    Write-Host "✓ Cleanup complete" -ForegroundColor Green
 }
