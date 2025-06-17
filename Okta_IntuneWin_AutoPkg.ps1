@@ -5,7 +5,6 @@ $sourcePath = "C:\IntunePackaging\OktaVerify\Source\"
 $outputPath = "C:\IntunePackaging\OktaVerify\Output\"
 $intuneWinAppUtilPath = "C:\IntuneTools\IntuneWinAppUtil\"
 $oktaVerifyInstaller = "OktaVerify_Install.exe"
-$envFilePath = "$intuneWinAppUtilPath.env"
 
 # Create directories
 Write-Host "Creating required directories..." -ForegroundColor Cyan
@@ -19,64 +18,25 @@ try {
     exit 1
 }
 
-# Create .env file if it doesn't exist
-if (-not (Test-Path $envFilePath)) {
-    Write-Host "Creating .env configuration file..." -ForegroundColor Cyan
-    $envContent = @"
-# Intune Win32 App Deployment Configuration
-# Add your Okta Verify .exe file download URL below:
-OKTA_VERIFY_URL=
-"@
-    Set-Content -Path $envFilePath -Value $envContent
-    Write-Host "✓ .env file created at: $envFilePath" -ForegroundColor Green
-}
+# Prompt for Okta Verify URL
+Write-Host "`nOkta Verify .exe download URL required." -ForegroundColor Yellow
+Write-Host "Grab your URL from: Okta Admin Console > Settings > Downloads > Okta Verify for Windows (.exe)" -ForegroundColor Cyan
+$oktaVerifyUrl = Read-Host "Please enter the Okta Verify .exe file download URL"
 
-# Function to read .env file and set environment variables
-function Load-EnvFile {
-    param($FilePath)
-    if (Test-Path $FilePath) {
-        Get-Content $FilePath | ForEach-Object {
-            if ($_ -match '^([^#=]+)=(.*)$') {
-                [Environment]::SetEnvironmentVariable($matches[1], $matches[2], "Process")
-            }
-        }
-    }
-}
-
-# Load environment variables from .env file
-Load-EnvFile -FilePath $envFilePath
-
-# Check if Okta Verify URL is configured, if not prompt user
-if (-not $ENV:OKTA_VERIFY_URL) {
-    Write-Host "`nOkta Verify .exe download URL not configured." -ForegroundColor Yellow
-    Write-Host "Grab your URL from: Okta Admin Console > Settings > Downloads > Okta Verify for Windows (.exe)" -ForegroundColor Cyan
-    $oktaUrl = Read-Host "Please enter the Okta Verify .exe file download URL"
-    
-    if ($oktaUrl) {
-        # Update the .env file with quoted URL
-        $envContent = Get-Content $envFilePath
-        $updatedContent = $envContent -replace "OKTA_VERIFY_URL=.*", "OKTA_VERIFY_URL=`"$oktaUrl`""
-        Set-Content -Path $envFilePath -Value $updatedContent
-        
-        # Set the environment variable for current session
-        [Environment]::SetEnvironmentVariable("OKTA_VERIFY_URL", $oktaUrl, "Process")
-        Write-Host "✓ Okta Verify .exe URL saved and loaded" -ForegroundColor Green
-    } else {
-        Write-Host "✗ No URL provided. Cannot continue." -ForegroundColor Red
-        exit 1
-    }
+if (-not $oktaVerifyUrl) {
+    Write-Host "✗ No URL provided. Cannot continue." -ForegroundColor Red
+    exit 1
 }
 
 # Download Okta Verify
 Write-Host "Downloading Okta Verify installer..." -ForegroundColor Cyan
-$oktaVerifyUrl = $ENV:OKTA_VERIFY_URL
 $oktaVerifyExePath = "$sourcePath$oktaVerifyInstaller"
 try {
     Invoke-WebRequest -Uri $oktaVerifyUrl -OutFile $oktaVerifyExePath
     Write-Host "✓ Okta Verify installer downloaded successfully" -ForegroundColor Green
 } catch {
     Write-Host "✗ Error downloading Okta Verify: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Please check the OKTA_VERIFY_URL in your .env file" -ForegroundColor Yellow
+    Write-Host "Please check the URL you provided" -ForegroundColor Yellow
     exit 1
 }
 
@@ -114,7 +74,9 @@ try {
         # Clean up temporary files
         Write-Host "Cleaning up temporary files..." -ForegroundColor Cyan
         Remove-Item "$sourcePath$oktaVerifyInstaller" -ErrorAction SilentlyContinue
-        Remove-Item $envFilePath -ErrorAction SilentlyContinue
+        
+        # Clear sensitive variables from memory
+        $oktaVerifyUrl = $null
         Write-Host "✓ Cleanup complete" -ForegroundColor Green
     } else {
         Write-Host "✗ IntuneWinAppUtil failed with exit code: $LASTEXITCODE" -ForegroundColor Red

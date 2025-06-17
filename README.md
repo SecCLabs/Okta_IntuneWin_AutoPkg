@@ -7,8 +7,8 @@ This PowerShell script automates the process of packaging Okta Verify for deploy
 1. **Downloads Okta Verify** - Fetches the Windows .exe installer from your Okta organization
 2. **Downloads Microsoft Win32 Content Prep Tool** - Gets the latest IntuneWinAppUtil from GitHub
 3. **Creates .intunewin Package** - Packages Okta Verify into the format required by Intune
-4. **Manages Configuration** - Handles URL storage and retrieval automatically
-5. **Cleans Up** - Automatically removes temporary files after successful packaging
+4. **Securely Handles URLs** - Prompts for Okta URL when needed without persistent storage
+5. **Cleans Up** - Automatically removes temporary files and clears sensitive variables
 
 ## Requirements
 
@@ -29,12 +29,14 @@ Required for downloading:
 
 ## Usage
 
-### First Run
+### Running the Script
 1. Set the execution policy: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned`
 2. Run the script as Administrator
 3. When prompted, enter your Okta Verify .exe download URL
    - Find this in: **Okta Admin Console > Settings > Downloads > Okta Verify for Windows (.exe)**
 4. The script will automatically download, package, create the .intunewin file, and clean up temporary files
+
+**Note:** You'll need to enter your Okta Verify URL each time you run the script.
 
 ## Output
 
@@ -42,20 +44,19 @@ The script creates the following directory structure:
 
 ```
 C:\IntunePackaging\OktaVerify\
-├── Source\                    # Temporary - cleaned up after packaging
+├── Source\                    # Temporary location of Okta Verify install .exe file
 └── Output\                    # Contains the final .intunewin package
 
 C:\IntuneTools\IntuneWinAppUtil\
-└── Microsoft-Win32-Content... # Extracted packaging tool
+└── IntuneWinAppUtil.exe # Extracted packaging tool
 ```
 
 **Note:** After successful packaging, the script automatically removes:
 - The downloaded Okta Verify installer from the Source folder
-- The temporary .env configuration file
+- Okta URL variable from memory
 
 ## Configuration
-
-The script temporarily creates a `.env` configuration file during execution but removes it after successful packaging for security purposes. You'll be prompted for your Okta Verify URL each time you run the script.
+The script does not store any configuration files. You'll be prompted for your Okta Verify URL each time you run the script.
 
 ## Troubleshooting
 
@@ -89,5 +90,5 @@ After the script completes successfully:
 ## Security Notes
 - The script uses Process-scoped execution policy for security
 - Downloads are performed over HTTPS
-- Temporary files (installer and configuration) are automatically cleaned up after successful packaging
-- No sensitive URLs are left as variables on the terminal after completion
+- Temporary files (installer) are automatically cleaned up after successful packaging
+- Sensitive URL variables are cleared from memory after use
